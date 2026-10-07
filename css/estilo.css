@@ -1,0 +1,210 @@
+:root {
+  --fondo: #ffffff;
+  --texto: #14202b;
+  --texto-2: #51606e;
+  --borde: #d5dbe1;
+  --acento: #1a73e8;
+  --sombra: 0 2px 10px rgba(0, 0, 0, .22);
+  --radio: 12px;
+  --gap: 10px;
+  --sup: env(safe-area-inset-top, 0px);
+  --inf: env(safe-area-inset-bottom, 0px);
+}
+
+/* Modo oscuro: fondos casi negros (ahorran batería en pantallas OLED) */
+:root[data-tema="oscuro"] {
+  --fondo: #12171d;
+  --texto: #e6eaee;
+  --texto-2: #9aa6b2;
+  --borde: #2b343e;
+  --acento: #4b9bff;
+  --sombra: 0 2px 10px rgba(0, 0, 0, .7);
+  --fondo-mapa: #0b0f14;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--fondo-mapa, #e9ecef); }
+.leaflet-container { background: var(--fondo-mapa, #e9ecef); }
+body {
+  font: 15px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--texto);
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+#mapa { position: fixed; inset: 0; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.tarjeta {
+  background: var(--fondo);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+/* --- Barra superior --- */
+.barra {
+  position: fixed; z-index: 1000;
+  top: calc(var(--sup) + var(--gap)); left: var(--gap); right: var(--gap);
+  display: flex; gap: 8px; align-items: stretch;
+}
+.selector { flex: 1 1 auto; min-width: 0; }
+.selector select {
+  width: 100%; height: 46px; padding: 0 30px 0 12px;
+  text-overflow: ellipsis;
+  font: inherit; font-weight: 650; color: var(--texto);
+  background: var(--fondo) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2351606e' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 8px center / 22px;
+  border: 0; border-radius: var(--radio); box-shadow: var(--sombra);
+  appearance: none; -webkit-appearance: none;
+}
+.segmentado {
+  display: flex; flex: 0 0 auto; padding: 3px; gap: 3px;
+  background: var(--fondo); border-radius: var(--radio); box-shadow: var(--sombra);
+}
+.segmentado button {
+  border: 0; border-radius: 9px; padding: 0 11px;
+  font: inherit; font-size: 14px; font-weight: 600;
+  background: transparent; color: var(--texto-2); cursor: pointer;
+}
+.segmentado button[aria-pressed="true"] { background: var(--texto); color: var(--fondo); }
+
+.btn-icono {
+  flex: 0 0 46px; height: 46px; border: 0; padding: 0;
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--fondo); border-radius: var(--radio); box-shadow: var(--sombra);
+}
+.btn-icono svg { width: 24px; height: 24px; fill: var(--texto); }
+.btn-icono[aria-expanded="true"] { background: var(--texto); }
+.btn-icono[aria-expanded="true"] svg { fill: var(--fondo); }
+
+/* --- Leyenda y panel de capas --- */
+.leyenda, .panel-capas {
+  position: fixed; z-index: 1000;
+  top: calc(var(--sup) + var(--gap) + 46px + 8px);
+}
+.leyenda {
+  left: var(--gap); max-width: min(360px, calc(100% - 2 * var(--gap)));
+  padding: 4px;
+}
+.leyenda button {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  min-height: 40px; padding: 6px 10px; border: 0; border-radius: 9px;
+  background: transparent; font: inherit; color: var(--texto);
+  text-align: left; cursor: pointer;
+}
+.leyenda button[aria-pressed="false"] { opacity: .4; }
+.leyenda .muestra {
+  flex: 0 0 26px; height: 6px; border-radius: 3px;
+}
+.leyenda .nombre { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.leyenda .cant { flex: 0 0 auto; color: var(--texto-2); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+.panel-capas {
+  right: var(--gap); padding: 6px 4px; min-width: 230px;
+}
+.panel-capas label {
+  display: flex; align-items: center; gap: 10px;
+  min-height: 44px; padding: 0 12px; cursor: pointer;
+}
+.panel-capas input { width: 20px; height: 20px; accent-color: var(--acento); }
+.panel-capas hr { border: 0; border-top: 1px solid var(--borde); margin: 4px 8px; }
+.btn-texto {
+  display: block; width: calc(100% - 16px); margin: 4px 8px 6px; min-height: 40px;
+  border: 1px solid var(--borde); border-radius: 9px; background: transparent;
+  font: inherit; color: var(--peligro, #b3261e); cursor: pointer;
+}
+:root[data-tema="oscuro"] { --peligro: #ff8a80; }
+
+/* --- Estado GPS y botón ubicar --- */
+.estado {
+  position: fixed; z-index: 1000;
+  left: var(--gap); bottom: calc(var(--inf) + var(--gap));
+  max-width: calc(100% - 2 * var(--gap) - 50px - 10px);
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.estado-linea { font-weight: 600; font-variant-numeric: tabular-nums; }
+.estado-linea.secundaria { font-weight: 500; color: var(--texto-2); margin-top: 1px; }
+.estado .viejo { color: var(--peligro, #b3261e); }
+
+.fab {
+  position: fixed; z-index: 1000;
+  right: var(--gap); bottom: calc(var(--inf) + var(--gap) + 18px);
+  width: 50px; height: 50px; border-radius: 50%; border: 0; padding: 0;
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--fondo); box-shadow: var(--sombra);
+}
+.fab svg { width: 25px; height: 25px; fill: var(--texto-2); }
+
+/* Botón de tema, encima del de ubicación */
+.fab-chico {
+  width: 42px; height: 42px; right: calc(var(--gap) + 4px);
+  bottom: calc(var(--inf) + var(--gap) + 18px + 50px + 12px);
+}
+.fab-chico svg { width: 21px; height: 21px; fill: var(--texto); }
+.fab-chico .icono-sol { display: none; }
+[data-tema="oscuro"] .fab-chico .icono-sol { display: block; }
+[data-tema="oscuro"] .fab-chico .icono-luna { display: none; }
+.fab.activo svg { fill: var(--acento); }
+.fab.siguiendo { background: var(--acento); }
+.fab.siguiendo svg { fill: #fff; }
+
+/* Atribución pequeña, a la derecha, debajo del botón */
+.leaflet-control-attribution { font-size: 10px; margin-bottom: var(--inf) !important; }
+
+/* --- Mi ubicación --- */
+.yo { position: relative; }
+.yo-punto {
+  position: absolute; left: 4px; top: 4px; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--acento);
+  border: 3px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25), 0 1px 6px rgba(0,0,0,.4);
+}
+.yo-flecha {
+  position: absolute; left: 0; top: 0; width: 28px; height: 28px;
+  display: none; transform-origin: 50% 50%;
+}
+.yo-flecha::before {
+  content: ""; position: absolute; left: 50%; top: -9px; transform: translateX(-50%);
+  border-left: 8px solid transparent; border-right: 8px solid transparent;
+  border-bottom: 13px solid var(--acento);
+  filter: drop-shadow(0 0 1.5px #fff);
+}
+.yo.con-rumbo .yo-flecha { display: block; }
+
+/* --- Etiquetas de número de parada --- */
+.leaflet-tooltip.etiqueta {
+  padding: 0 4px; border: 0; border-radius: 4px;
+  background: rgba(20, 32, 43, .85); color: #fff;
+  font: 700 12px/16px system-ui, sans-serif; box-shadow: none;
+}
+.leaflet-tooltip.etiqueta::before { display: none; }
+.zoom-bajo .leaflet-tooltip.etiqueta { display: none; }
+
+/* --- Popup de parada --- */
+.leaflet-popup-content { margin: 10px 12px; font: 14px/1.35 system-ui, sans-serif; min-width: 200px; }
+.popup-titulo { font-weight: 700; margin-bottom: 6px; }
+.popup-lista { list-style: none; margin: 0; padding: 0; }
+.popup-lista li { display: flex; gap: 8px; align-items: baseline; padding: 4px 0; border-top: 1px solid #eef0f2; }
+.popup-lista li:first-child { border-top: 0; }
+.popup-lista .chip {
+  flex: 0 0 auto; min-width: 34px; padding: 1px 6px; border-radius: 6px;
+  color: #fff; font-weight: 700; text-align: center; font-size: 13px;
+}
+.popup-lista .det { color: var(--texto-2); font-size: 13px; }
+.popup-coord { margin-top: 6px; color: var(--texto-2); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+/* Popup y atribución en modo oscuro */
+[data-tema="oscuro"] .leaflet-popup-content-wrapper,
+[data-tema="oscuro"] .leaflet-popup-tip { background: var(--fondo); color: var(--texto); box-shadow: var(--sombra); }
+[data-tema="oscuro"] .leaflet-container a.leaflet-popup-close-button { color: var(--texto-2); }
+[data-tema="oscuro"] .popup-lista li { border-top-color: var(--borde); }
+[data-tema="oscuro"] .leaflet-control-attribution { background: rgba(18, 23, 29, .8); color: var(--texto-2); }
+[data-tema="oscuro"] .leaflet-control-attribution a { color: var(--texto-2); }
+[data-tema="oscuro"] .leaflet-tooltip.etiqueta { background: rgba(0, 0, 0, .85); color: #fff; }
+
+@media (max-width: 380px) {
+  .segmentado button { padding: 0 8px; font-size: 13px; }
+}

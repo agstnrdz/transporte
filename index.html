@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1b2a3a">
+  <title>Relevamiento de paradas</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/estilo.css">
+  <script>
+    // Aplica el tema antes de pintar, para evitar un destello blanco
+    try {
+      var t = JSON.parse(localStorage.getItem("visor.tema"));
+      document.documentElement.dataset.tema = t || (matchMedia("(prefers-color-scheme: dark)").matches ? "oscuro" : "claro");
+    } catch (e) { document.documentElement.dataset.tema = "claro"; }
+  </script>
+</head>
+<body>
+  <div id="mapa" aria-label="Mapa"></div>
+
+  <!-- Barra superior -->
+  <div class="barra">
+    <label class="selector">
+      <span class="visually-hidden">Línea</span>
+      <select id="sel-linea" aria-label="Línea">
+        <option value="todas">Todas las líneas</option>
+      </select>
+    </label>
+    <div class="segmentado" role="group" aria-label="Mapa base">
+      <button type="button" data-base="mapa" aria-pressed="true">Mapa</button>
+      <button type="button" data-base="satelite" aria-pressed="false">Satélite</button>
+    </div>
+    <button type="button" id="btn-capas" class="btn-icono" aria-label="Capas" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8.5 12 14l10-5.5L12 3Zm-7.6 9.1L2 13.5 12 19l10-5.5-2.4-1.4L12 16.3l-7.6-4.2Z"/></svg>
+    </button>
+  </div>
+
+  <!-- Leyenda de la línea elegida -->
+  <div id="leyenda" class="tarjeta leyenda" hidden></div>
+
+  <!-- Panel de capas -->
+  <div id="panel-capas" class="tarjeta panel-capas" hidden>
+    <label><input type="checkbox" data-capa="recorridos" checked> Recorridos</label>
+    <label><input type="checkbox" data-capa="paradas" checked> Paradas</label>
+    <label><input type="checkbox" data-capa="etiquetas" checked> Números de parada</label>
+    <label><input type="checkbox" data-capa="rastro" checked> Mi recorrido de hoy</label>
+    <button type="button" id="btn-borrar-rastro" class="btn-texto">Borrar mi recorrido</button>
+  </div>
+
+  <!-- Estado GPS -->
+  <div id="estado" class="tarjeta estado">
+    <div id="estado-gps" class="estado-linea">GPS apagado</div>
+    <div id="estado-cercana" class="estado-linea secundaria" hidden></div>
+  </div>
+
+  <button type="button" id="btn-tema" class="fab fab-chico" aria-label="Cambiar a modo oscuro">
+    <svg class="icono-luna" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.3 22A10 10 0 0 1 9.4 2.4a8 8 0 0 0 12.2 9.9A10 10 0 0 1 12.3 22Z"/></svg>
+    <svg class="icono-sol" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM11 1h2v3h-2V1Zm0 19h2v3h-2v-3ZM1 11h3v2H1v-2Zm19 0h3v2h-3v-2ZM4.2 2.8l2.1 2.1-1.4 1.4-2.1-2.1 1.4-1.4Zm14.9 14.9 2.1 2.1-1.4 1.4-2.1-2.1 1.4-1.4ZM2.8 19.8l2.1-2.1 1.4 1.4-2.1 2.1-1.4-1.4ZM17.7 4.9l2.1-2.1 1.4 1.4-2.1 2.1-1.4-1.4Z"/></svg>
+  </button>
+
+  <button type="button" id="btn-ubicar" class="fab apagado" aria-label="Activar ubicación y seguirme">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm9 3h-2.06A7 7 0 0 0 13 5.06V3h-2v2.06A7 7 0 0 0 5.06 11H3v2h2.06A7 7 0 0 0 11 18.94V21h2v-2.06A7 7 0 0 0 18.94 13H21v-2Zm-9 6a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z"/></svg>
+  </button>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/visor.js"></script>
+</body>
+</html>
